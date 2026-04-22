@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ArrayDeque61B<T> implements Deque61B<T> {
-    T[] items;
-    int size;
-    int nextFirst;
-    int nextLast;
+    private T[] items;
+    private int size;
+    private int nextFirst;
+    private int nextLast;
 
     @SuppressWarnings("unchecked")
     public ArrayDeque61B() {
@@ -19,16 +19,35 @@ public class ArrayDeque61B<T> implements Deque61B<T> {
 
     @Override
     public void addFirst(T x) {
+        if (size == items.length) {
+            resizeUp();
+        }
         items[nextFirst] = x;
         size++;
-        nextFirst--;
+        nextFirst = Math.floorMod(nextFirst - 1, items.length);
     }
 
     @Override
     public void addLast(T x) {
+        if (size == items.length) {
+            resizeUp();
+        }
         items[nextLast] = x;
         size++;
-        nextLast++;
+        nextLast = Math.floorMod(nextLast + 1, items.length);
+    }
+
+    public void resizeUp() {
+        T[] newArr = (T[]) new Object[items.length * 2];
+        int current = Math.floorMod(nextFirst + 1, items.length);
+
+        for (int i = 0; i < items.length; i++) {
+            newArr[i] = items[current];
+            current = Math.floorMod(current + 1, items.length);
+        }
+        items = newArr;
+        nextFirst = newArr.length - 1;
+        nextLast = size;
     }
 
     @Override
@@ -52,24 +71,52 @@ public class ArrayDeque61B<T> implements Deque61B<T> {
         return size;
     }
 
+    public int backingArrayLength(){
+        return items.length;
+    }
+
     @Override
     public T removeFirst() {
+        if (size == 0) {
+            return null;
+        }
         int firstIdx = Math.floorMod(nextFirst + 1, items.length);
         T first = items[firstIdx];
         items[firstIdx] = null;
         size--;
         nextFirst = firstIdx;
+        if (items.length >= 16 && ((double) size / items.length) <= 0.25) {
+            resizeDown();
+        }
         return first;
     }
 
     @Override
     public T removeLast() {
+        if (size == 0) {
+            return null;
+        }
         int lastIdx = Math.floorMod(nextLast - 1, items.length);
         T last = items[lastIdx];
         items[lastIdx] = null;
         size--;
         nextLast = lastIdx;
+        if (items.length >= 16 && ((double) size / items.length) <= 0.25) {
+            resizeDown();
+        }
         return last;
+    }
+
+    public void resizeDown(){
+        T[] newArr = (T[]) new Object[items.length / 2];
+        int current = Math.floorMod(nextFirst + 1, items.length);
+        for (int i = 0; i < size; i++) {
+            newArr[i] = items[current];
+            current = Math.floorMod(current + 1, items.length);
+        }
+        items = newArr;
+        nextFirst = items.length - 1;
+        nextLast = size;
     }
 
     @Override

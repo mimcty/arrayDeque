@@ -5,7 +5,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
+import java.util.Deque;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -31,12 +33,23 @@ public class ArrayDeque61BTest {
 
     @Test
     /* Uses addFirst to add 9 elements to an empty list. Tests resizing; backing array is initialized with size 8. **/
-    public void addFirstTestResize() {
+    public void addFirstTestResizeOnce() {
         Deque61B<Integer> deque = new ArrayDeque61B<>();
         for (int i = 0; i < 9; i++) {
             deque.addFirst(i);
         }
-        assertThat(deque.toList()).containsExactly(0, 1, 2, 3, 4, 5, 6, 7, 8).inOrder();
+        assertThat(deque.toList()).containsExactly(8, 7, 6, 5, 4, 3, 2, 1, 0).inOrder();
+    }
+
+    @Test
+    /* Uses addFirst() to add a large amount of elements to the deque. Tests if the deque can handle resizing. **/
+    public void addFirstResizeMany(){
+        Deque61B<Integer> deque = new ArrayDeque61B<>();
+        for (int i = 10000; i >= 0; i--) {
+            deque.addFirst(i);
+        }
+        List<Integer> list = IntStream.rangeClosed(0, 10000).boxed().toList();
+        assertThat(deque.toList()).isEqualTo(list);
     }
 
     @Test
@@ -69,6 +82,17 @@ public class ArrayDeque61BTest {
     }
 
     @Test
+    /* Uses addLast() to add a large amount of elements to the deque. Tests if the deque can handle resizing. **/
+    public void addLastResizeMany(){
+        Deque61B<Integer> deque = new ArrayDeque61B<>();
+        for (int i = 0; i <= 10000; i++) {
+            deque.addLast(i);
+        }
+        List<Integer> list = IntStream.rangeClosed(0, 10000).boxed().toList();
+        assertThat(deque.toList()).isEqualTo(list);
+    }
+
+    @Test
     /* Use addFirst() and addLast() to add elements. **/
     public void addFirstAndLast() {
         Deque61B<String> deque = new ArrayDeque61B<>();
@@ -84,12 +108,12 @@ public class ArrayDeque61BTest {
     public void addFirstAndLastMoreElements() {
         Deque61B<Integer> deque = new ArrayDeque61B<>();
         for (int i = 3; i >= 0; i--) {
-            deque.addFirst(i);
-        }
-        for (int i = 4; i < 9; i++) {
             deque.addLast(i);
         }
-        assertThat(deque.toList()).containsExactly(0, 1, 2, 3, 4, 5, 6, 7, 8).inOrder();
+        for (int i = 4; i < 9; i++) {
+            deque.addFirst(i);
+        }
+        assertThat(deque.toList()).containsExactly(8, 7, 6, 5, 4, 3, 2, 1, 0).inOrder();
     }
 
     @Test
@@ -161,6 +185,17 @@ public class ArrayDeque61BTest {
     }
 
     @Test
+    /* Removes using removeFirst() from an empty deque, then adds elements, then removes again. **/
+    public void removeFirstFromEmptyDeque() {
+        Deque61B<Integer> deque = new ArrayDeque61B<>();
+        deque.removeFirst();
+        deque.addFirst(1);
+        deque.addLast(2);
+        deque.removeFirst();
+        assertThat(deque.toList()).containsExactly(2);
+    }
+
+    @Test
     /* Tests removeFirst() on a deque that has two element. Checks that it contains 0 elements after.**/
     public void removeFirstTwoElements() {
         Deque61B<Integer> deque = new ArrayDeque61B<>();
@@ -212,6 +247,34 @@ public class ArrayDeque61BTest {
         deque.removeLast();
         assertThat(deque.toList()).containsExactly(7, 6, 5, 4, 3, 2, 1).inOrder();
         assertThat(deque.size()).isEqualTo(7);
+    }
+
+    @Test
+    /* Tests resizeDown() in removeFirst() by adding a lot of elements to deque, then removing. **/
+    public void testRemoveFirstResizeDown(){
+        ArrayDeque61B<Integer> deque = new ArrayDeque61B<>();
+        for (int i = 0; i <= 1000; i++) {
+            deque.addFirst(i);
+        }
+        assertThat(deque.backingArrayLength()).isEqualTo(1024);
+        for (int i = 0; i < 1000; i++) {
+            deque.removeFirst();
+        }
+        assertThat(deque.backingArrayLength()).isEqualTo(8);
+    }
+
+    @Test
+    /* Tests resizeDown() in removeLast() by adding a lot of elements to deque, then removing. **/
+    public void testRemoveLastResizeDown(){
+        ArrayDeque61B<Integer> deque = new ArrayDeque61B<>();
+        for (int i = 0; i <= 1000; i++) {
+            deque.addLast(i);
+        }
+        assertThat(deque.backingArrayLength()).isEqualTo(1024);
+        for (int i = 0; i < 1000; i++) {
+            deque.removeLast();
+        }
+        assertThat(deque.backingArrayLength()).isEqualTo(8);
     }
 
 }
