@@ -1,7 +1,35 @@
+package deque;
+
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public class LinkedListDeque61B<T> implements Deque61B<T>{
+public class LinkedListDeque61B<T> implements Deque61B<T> {
+    private class LinkedListIterator implements Iterator<T> {
+        Node current;
+
+        private LinkedListIterator() {
+            this.current = sentinel;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return (current.next != sentinel);
+        }
+
+        @Override
+        public T next() {
+            T data = current.next.data;
+            current = current.next;
+            return data;
+        }
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new LinkedListIterator();
+    }
+
     private class Node {
         private Node prev;
         private Node next;

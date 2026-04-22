@@ -1,5 +1,6 @@
 import deque.ArrayDeque61B;
 import deque.Deque61B;
+import deque.LinkedListDeque61B;
 import jh61b.utils.Reflection;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -277,4 +278,15 @@ public class ArrayDeque61BTest {
         assertThat(deque.backingArrayLength()).isEqualTo(8);
     }
 
+    @Test
+    /* Tests iterable functionality. **/
+    public void testIterable() {
+        Deque61B<String> deque = new ArrayDeque61B<>();
+        deque.addLast("hello");
+        deque.addLast("cs61b");
+        deque.addLast("class");
+        deque.addLast("and");
+        deque.addLast("world");
+        assertThat(deque).containsExactly("hello", "cs61b", "class", "and", "world");
+    }
 }

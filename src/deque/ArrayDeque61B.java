@@ -1,9 +1,41 @@
 package deque;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class ArrayDeque61B<T> implements Deque61B<T> {
+    private class ArrayDequeIterator implements Iterator<T> {
+        T[] array;
+        int curr;
+        int count;
+        int size = ArrayDeque61B.this.size;
+
+        private ArrayDequeIterator() {
+            this.array = items;
+            this.curr = nextFirst;
+            this.count = 0;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return count != size;
+        }
+
+        @Override
+        public T next() {
+            T data = array[Math.floorMod(curr + 1, array.length)];
+            curr++;
+            count++;
+            return data;
+        }
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new ArrayDequeIterator();
+    }
+
     private T[] items;
     private int size;
     private int nextFirst;
@@ -134,4 +166,5 @@ public class ArrayDeque61B<T> implements Deque61B<T> {
     public T getRecursive(int index) {
         throw new UnsupportedOperationException("No need to implement getRecursive for proj 1b");
     }
+
 }
